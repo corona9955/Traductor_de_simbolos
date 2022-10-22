@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Traductor_de_simbolos;
 using Traductor_de_simbolos.Simbolos;
+using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 
 namespace Traductor_de_simbolos
 {
@@ -20,6 +22,11 @@ namespace Traductor_de_simbolos
         {
             InitializeComponent();
         }
+        [DllImport("user32.DLL", EntryPoint = "ReleaseCapture")]
+        private extern static void ReleaseCapture();
+
+        [DllImport("user32.DLL", EntryPoint = "SendMessage")]
+        private extern static void SendMessage(System.IntPtr hWnd, int wMsg, int wParam, int lParam);
         // Botón de traducir
         private void btnTraducir_Click(object sender, EventArgs e)
         {
@@ -33,6 +40,12 @@ namespace Traductor_de_simbolos
             // En el caso que si haya texto, asigna  al txtSalida el valor que retorna el método TraducirSimbolo
             else
             {
+                if (Regex.IsMatch(txtEntrada.Text, @"([\w][\w]+)") == true)
+                {
+                    MessageBox.Show("No se pueden dejar caracteres juntos.","Advertencia",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+                    return;
+                }
+                MessageBox.Show("Símbolos traducidos correctamente...","Muy bien",MessageBoxButtons.OK,MessageBoxIcon.Question);
                 txtSalida.Text = sim.TraducirSimbolo();
             }
                 
@@ -74,5 +87,28 @@ namespace Traductor_de_simbolos
                "Ramirez Flores Abril - 19211715 \nabril.ramirez193@tectijuana.edu.mx", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+        private void panelTitulo_MouseDown(object sender, MouseEventArgs e)
+        {
+            ReleaseCapture();
+            SendMessage(this.Handle, 0x112, 0xf012, 0);
+        }
+
+        private void pbxSalida1_MouseHover(object sender, EventArgs e)
+        {
+            pbxSalida2.Visible = true;
+        }
+
+        private void pbxSalida2_MouseLeave(object sender, EventArgs e)
+        {
+            pbxSalida2.Visible = false;
+        }
+
+        private void pbxSalida2_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("¿Seguro que deseas salir de la aplicación?", "Salir", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == System.Windows.Forms.DialogResult.Yes)
+            {
+                Close();
+            }
+        }
     }
 }

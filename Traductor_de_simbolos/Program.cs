@@ -16,7 +16,7 @@ namespace Traductor_de_simbolos
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Traductor());
+            Application.Run(new Inicio());
         }
     }
 }
